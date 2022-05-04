@@ -8,7 +8,7 @@ Kongzue Runner 是一个独立的消息事件传递总线，不依赖 Intent，�
   
 - 不需要重写任何接口，无需繁琐的设置，不需要你做任何继承或者重写接口；
 
-- 可以对一个不存在，还没启动的Activity也能生效；
+- 可以对一个不存在，还没启动的 Activity 也能生效；
 
 - 跨类操作直接对内部成员赋值；
 
@@ -89,6 +89,12 @@ Runner.sendToActivity(Activity2.class, "bitmapResult", BitmapFactory.decodeResou
 至不知道 class，只有个 Activity 的名字，在指定 Activity 中的成员直接赋值（会在实例化之后执行）：
 ```java
 Runner.sendToActivity("Activity2", "bitmapResult", BitmapFactory.decodeResource(getResources(),R.mipmap.img_bug));
+```
+
+要是担心混淆导致成员名称发生变化，可以使用注解，在 Activity2 中对成员进行注解标注其接收的 key：
+```java
+@SenderTarget("bitmapResult")
+Bitmap bitmap;
 ```
 
 ## 开源协议
