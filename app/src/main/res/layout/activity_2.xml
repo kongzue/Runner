@@ -8,13 +8,6 @@
     android:orientation="vertical"
     tools:context=".Activity2">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="runOnMainActivity"
-        android:text="在回到 MainActivity 后执行一个事件"
-        android:textAllCaps="false" />
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -29,4 +22,61 @@
         android:layout_width="90dp"
         android:background="@color/black10"
         android:layout_height="90dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="runOnMainActivity"
+        android:text="在 MainActivity 立即执行一个事件"
+        android:textAllCaps="false" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="runOnMainResume"
+        android:text="在回到 MainActivity 后执行一个事件"
+        android:textAllCaps="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="下边显示订阅消息：" />
+
+    <TextView
+        android:id="@+id/txt_subscribe_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:background="@color/black10"
+        android:padding="5dp"
+        android:textSize="20dp"
+        android:hint="订阅者A、订阅者B"
+        android:text=""/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/black"
+        android:background="@color/black10"
+        android:padding="5dp"
+        android:textSize="20dp"
+        android:tag="subscriberB"
+        android:hint="订阅者B"
+        android:text=""/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="sendTextDataA"
+        android:text="为所有订阅者A推送一个消息"
+        android:textAllCaps="false" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="sendTextDataB"
+        android:text="为所有订阅者B推送一个消息"
+        android:textAllCaps="false" />
+
 </LinearLayout>

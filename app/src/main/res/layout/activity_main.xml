@@ -39,4 +39,20 @@
         android:text="传递一个 Bitmap 到 Activity2"
         android:textAllCaps="false" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="下边显示订阅消息：" />
+
+    <TextView
+        android:id="@+id/txt_subscribe_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/black10"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        android:hint="订阅者A"
+        android:padding="5dp"
+        android:text=""/>
+
 </LinearLayout>

@@ -5,12 +5,14 @@ Kongzue Runner 是一个独立的消息事件传递总线，不依赖 Intent，�
 ## 优势
 
 - 操作简单易上手；
-  
+
 - 不需要重写任何接口，无需繁琐的设置，不需要你做任何继承或者重写接口；
 
 - 可以对一个不存在，还没启动的 Activity 也能生效；
 
 - 跨类操作直接对内部成员赋值；
+
+- 自动化，默认主线程执行，操作 UI 更方便；
 
 - 直接丢就完事了，这货就是个挂；
 
@@ -22,6 +24,7 @@ Kongzue Runner 是一个独立的消息事件传递总线，不依赖 Intent，�
 <img src="https://jitpack.io/v/kongzue/Runner.svg" alt="Jitpack.io">
 </a> 
 </div>
+
 
 1) 在 project 的 build.gradle 文件中找到 `allprojects{}` 代码块添加以下代码：
 
@@ -47,6 +50,7 @@ implementation 'com.github.kongzue:Runner:0.0.1'
 ## 怎么丢？
 
 首先你得初始化，建议在 Application#onCreate 里进行：
+
 ```java
 Runner.init(this);
 ```
@@ -56,6 +60,7 @@ Runner.init(this);
 ### 丢事件：
 
 在已经实例化的 Activity 上执行操作：
+
 ```java
 //MainActivity.getInstance() 指向 MainActivity 的实例化对象，此处只做演示用，不建议这样用有内存泄漏的风险
 Runner.runOnActivity(MainActivity.getInstance(), new ActivityRunnable() {
@@ -71,6 +76,7 @@ Runner.runOnActivity(MainActivity.getInstance(), new ActivityRunnable() {
 ```
 
 不确定，或尚未实例化的情况下，在指定 Activity 上执行操作（会在实例化之后执行）：
+
 ```java
 Runner.runOnActivity(Activity2.class, new ActivityRunnable() {
     @Override
@@ -85,6 +91,7 @@ Runner.runOnActivity(Activity2.class, new ActivityRunnable() {
 ```
 
 甚至不知道 class，只有个 Activity 的名字，在指定名字的 Activity 上执行操作（会在实例化之后执行）：
+
 ```java
 Runner.runOnActivity("Activity2", new ActivityRunnable() {
     @Override
@@ -99,6 +106,7 @@ Runner.runOnActivity("Activity2", new ActivityRunnable() {
 ```
 
 额外说明，ActivityRunnable 具有泛型，你可以直接指定泛型为你的目标 Activity，这样就可以直接操作其内部的 public 修饰的成员或方法了：
+
 ```java
 Runner.runOnActivity("Activity2", new ActivityRunnable<Activity2>() {
     @Override
@@ -108,36 +116,85 @@ Runner.runOnActivity("Activity2", new ActivityRunnable<Activity2>() {
 });
 ```
 
+##### 在回到此界面时执行
+
+除了 runOnActivity 外，还有 runOnResume，此方法与 runOnActivity 的操作基本一致，但它的执行条件是
+
+- 当返回该界面时；
+
+- 当处于该界面时；
+
+即若当前指定界面处于顶层，runOnResume 会立即执行，若处于后台或者非顶层，则当界面恢复到顶层时执行。
+
 ### 丢内容：
 
 首先，你需要在目标 Activity 上编写一个成员，例如：
+
 ```java
 Bitmap bitmapResult;
 ```
 
 对已经实例化的 Activity 中的成员直接赋值：
+
 ```java
 //activity2 为已经实例化的 Activity2
 Runner.sendToActivity(activity2, "bitmapResult", BitmapFactory.decodeResource(getResources(),R.mipmap.img_bug));
 ```
 
 不确定，或尚未实例化的情况下，在指定 Activity 中的成员直接赋值（会在实例化之后执行）：
+
 ```java
 Runner.sendToActivity(Activity2.class, "bitmapResult", BitmapFactory.decodeResource(getResources(),R.mipmap.img_bug));
 ```
 
 至不知道 class，只有个 Activity 的名字，在指定 Activity 中的成员直接赋值（会在实例化之后执行）：
+
 ```java
 Runner.sendToActivity("Activity2", "bitmapResult", BitmapFactory.decodeResource(getResources(),R.mipmap.img_bug));
 ```
 
 要是担心混淆导致成员名称发生变化，可以使用注解，在 Activity2 中对成员进行注解标注其接收的 key：
+
 ```java
 @SenderTarget("bitmapResult")
 Bitmap bitmap;
 ```
 
+### 随时更新
+
+你可以为 View 指定一个注解，当对应 key 的广播执行时，**所有（包括其他界面）**拥有该注解的 View 的内容会被更新。
+
+例如：
+
+```java
+@DataWatcher("subscriberA")
+private TextView txtSubscribeMessage;
+```
+
+发送更新内容通知：
+
+```java
+Runner.changeData("subscriberA", "Test Message");
+```
+
+随时更新会根据 View 组件的类型和数据类型进行匹配，例如当 View 为 TextView 内容为 int 时调用 textview.setText(resId) 去设置内容，此外还支持基本组件：
+
+| View      | 数据类型                                                     |
+| --------- | ------------------------------------------------------------ |
+| TextView  | String、int（资源id）、CharSequence                          |
+| ImageView | Bitmap、int（资源id）、Drawable、Icon、Uri                   |
+| ListView  | ListAdapter、List（仅支持执行对应 adapter 的数据更新操作 notifyDataSetChanged） |
+
+##### 根据 View 的 Tag 更新内容
+
+你还可以使用以下代码根据 View 设置的 Tag 来修改内容，对所有界面同 Tag 全部生效。
+
+```java
+Runner.changeDataByTag("subscriberB", "Hello World");
+```
+
 ## 开源协议
+
 ```
 Copyright Kongzue DialogX
 

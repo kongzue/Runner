@@ -13,6 +13,7 @@
         <activity
             android:name=".Activity2"
             android:label="Activity2"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

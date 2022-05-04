@@ -3,14 +3,29 @@ package com.kongzue.runner;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Adapter;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,16 +45,19 @@ public class Runner {
      * 是否打印日志
      */
     public static boolean DEBUGMODE = true;
+    public static CustomDataSetter customDataSetter;
     
     private static Application application;
     private static Application.ActivityLifecycleCallbacks activityLifecycle;
     private static List<Activity> activityList;
     private static CopyOnWriteArrayList<ActivityRunnable> waitRunnableList;
+    private static CopyOnWriteArrayList<ActivityRunnable> resumeRunnableList;
+    private static WeakReference<Activity> topActivity;
     
     /**
      * 初始化
      *
-     * @param context 任意上下文
+     * @param context   任意上下文
      * @param debugMode 是否开启日志打印
      */
     public static void init(Context context, boolean debugMode) {
@@ -61,6 +79,7 @@ public class Runner {
             @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
                 log("#onActivityCreated: " + activity.getClass().getName());
+                topActivity = new WeakReference<>(activity);
                 if (activityList == null) {
                     activityList = new ArrayList<>();
                 }
@@ -83,7 +102,18 @@ public class Runner {
             
             @Override
             public void onActivityResumed(@NonNull Activity activity) {
-            
+                log("#onActivityResumed: " + activity.getClass().getName());
+                topActivity = new WeakReference<>(activity);
+                if (resumeRunnableList != null && !resumeRunnableList.isEmpty()) {
+                    for (int i = resumeRunnableList.size() - 1; i >= 0; i--) {
+                        ActivityRunnable runnable = resumeRunnableList.get(i);
+                        if (Objects.equals(runnable.waitRunActivityClass, activity.getClass()) || Objects.equals(runnable.waitRunActivityName, activity.getClass().getSimpleName()) || (runnable.activityWeakReference != null && runnable.activityWeakReference.get() == activity)) {
+                            runnable.run(activity);
+                            resumeRunnableList.remove(runnable);
+                        }
+                    }
+                }
+                
             }
             
             @Override
@@ -105,6 +135,9 @@ public class Runner {
             public void onActivityDestroyed(@NonNull Activity activity) {
                 log("#onActivityDestroyed: " + activity.getClass().getName());
                 activityList.remove(activity);
+                if (topActivity.get() == activity) {
+                    topActivity.clear();
+                }
             }
         });
     }
@@ -188,6 +221,92 @@ public class Runner {
         }
         activityRunnable.waitRunActivityName = activityName;
         waitRunnableList.add(activityRunnable);
+    }
+    
+    
+    /**
+     * 等待指定 Activity 恢复至前台时执行事件 ActivityRunnable
+     * 若指定 Activity 已经在前台，会立即执行事件
+     *
+     * @param activity         上下文
+     * @param activityRunnable 事件体
+     */
+    public static void runOnResume(Activity activity, ActivityRunnable activityRunnable) {
+        if (resumeRunnableList == null) {
+            resumeRunnableList = new CopyOnWriteArrayList<>();
+        }
+        if (topActivity != null && activity == topActivity.get()) {
+            runOnActivity(activity, activityRunnable);
+        } else {
+            activityRunnable.activityWeakReference = new WeakReference(activity);
+            resumeRunnableList.add(activityRunnable);
+        }
+    }
+    
+    /**
+     * 在指定已知 Activity 的 Class 但不确定是否实例化的 Activity 上执行事件 ActivityRunnable
+     *
+     * @param activityClass    Activity 的 Class
+     * @param activityRunnable 事件体
+     */
+    public static void runOnResume(Class activityClass, ActivityRunnable activityRunnable) {
+        if (activityList == null || activityList.isEmpty()) {
+            return;
+        }
+        for (int i = activityList.size() - 1; i >= 0; i--) {
+            if (activityList.get(i).getClass() == activityClass) {
+                runOnResume(activityList.get(i), activityRunnable);
+                return;
+            }
+        }
+        waitRunOnResume(activityClass, activityRunnable);
+    }
+    
+    /**
+     * 在指定已知 Activity 的类名但不确定是否实例化的 Activity 上执行事件 ActivityRunnable
+     *
+     * @param activityName     Activity 的类名
+     * @param activityRunnable 事件体
+     */
+    public static void runOnResume(String activityName, ActivityRunnable activityRunnable) {
+        if (activityList == null || activityList.isEmpty()) {
+            return;
+        }
+        for (int i = activityList.size() - 1; i >= 0; i--) {
+            if (Objects.equals(activityList.get(i).getClass().getSimpleName(), activityName)) {
+                runOnResume(activityList.get(i), activityRunnable);
+                return;
+            }
+        }
+        waitRunOnResume(activityName, activityRunnable);
+    }
+    
+    /**
+     * 等待在已知 Class 的新创建的 Activity 上的 onResume 时执行事件 ActivityRunnable
+     *
+     * @param activityClass    Activity 的 Class
+     * @param activityRunnable 事件体
+     */
+    public static void waitRunOnResume(Class activityClass, ActivityRunnable activityRunnable) {
+        if (resumeRunnableList == null) {
+            resumeRunnableList = new CopyOnWriteArrayList<>();
+        }
+        activityRunnable.waitRunActivityClass = activityClass;
+        resumeRunnableList.add(activityRunnable);
+    }
+    
+    /**
+     * 等待在已知类名的新创建的 Activity 上的 onResume 时执行事件 ActivityRunnable
+     *
+     * @param activityName     Activity 的类名
+     * @param activityRunnable 事件体
+     */
+    public static void waitRunOnResume(String activityName, ActivityRunnable activityRunnable) {
+        if (resumeRunnableList == null) {
+            resumeRunnableList = new CopyOnWriteArrayList<>();
+        }
+        activityRunnable.waitRunActivityName = activityName;
+        resumeRunnableList.add(activityRunnable);
     }
     
     /**
@@ -279,6 +398,98 @@ public class Runner {
                         e.printStackTrace();
                     }
                     return;
+                }
+            }
+        }
+    }
+    
+    public static void changeData(String key, Object data) {
+        if (activityList == null) {
+            return;
+        }
+        for (Activity activity : activityList) {
+            Field[] fields = activity.getClass().getDeclaredFields();
+            for (int i = 0; i < fields.length; i++) {
+                Field field = fields[i];
+                if (field.isAnnotationPresent(DataWatcher.class)) {
+                    DataWatcher dataWatcher = field.getAnnotation(DataWatcher.class);
+                    if (dataWatcher != null && Objects.equals(key, dataWatcher.value())) {
+                        try {
+                            field.setAccessible(true);
+                            View view = (View) field.get(activity);
+                            setValue(view, data);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                if (field.isAnnotationPresent(DataWatchers.class)) {
+                    DataWatchers dataWatchers = field.getAnnotation(DataWatchers.class);
+                    if (dataWatchers != null) {
+                        String[] keys = dataWatchers.value();
+                        if (keys.length > 0) {
+                            if (Arrays.asList(keys).contains(key)) {
+                                try {
+                                    field.setAccessible(true);
+                                    View view = (View) field.get(activity);
+                                    setValue(view, data);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    public static void changeDataByTag(String key, Object data) {
+        if (activityList == null) {
+            return;
+        }
+        for (Activity activity : activityList) {
+            View view = activity.getWindow().getDecorView().findViewWithTag(key);
+            if (view != null) {
+                setValue(view, data);
+            }
+        }
+    }
+    
+    private static void setValue(View view, Object data) {
+        if (view != null) {
+            if (customDataSetter == null || !customDataSetter.setData(view, data)) {
+                if (view instanceof TextView) {
+                    TextView textview = (TextView) view;
+                    if (data instanceof CharSequence) {
+                        textview.setText(String.valueOf(data));
+                    } else if (data instanceof Integer) {
+                        textview.setText((int) data);
+                    }
+                } else if (view instanceof ImageView) {
+                    ImageView imageView = (ImageView) view;
+                    if (data instanceof Bitmap) {
+                        imageView.setImageBitmap((Bitmap) data);
+                    } else if (data instanceof Integer) {
+                        imageView.setImageResource((int) data);
+                    } else if (data instanceof Drawable) {
+                        imageView.setImageDrawable((Drawable) data);
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (data instanceof Icon) {
+                            imageView.setImageIcon((Icon) data);
+                        }
+                    } else if (data instanceof Uri) {
+                        imageView.setImageURI((Uri) data);
+                    }
+                } else if (view instanceof ListView) {
+                    ListView listView = (ListView) view;
+                    if (data instanceof ListAdapter) {
+                        listView.setAdapter((ListAdapter) data);
+                    } else if (data instanceof List) {
+                        if (listView.getAdapter() instanceof BaseAdapter) {
+                            ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+                        }
+                    }
                 }
             }
         }

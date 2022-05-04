@@ -7,18 +7,25 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 
 import com.kongzue.dialogx.dialogs.MessageDialog;
 import com.kongzue.runner.ActivityRunnable;
+import com.kongzue.runner.DataWatcher;
 import com.kongzue.runner.Runner;
 import com.kongzue.dialogx.dialogs.PopTip;
 
 public class MainActivity extends AppCompatActivity {
     
+    @DataWatcher("subscriberA")
+    private TextView txtSubscribeMessage;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        txtSubscribeMessage = findViewById(R.id.txt_subscribe_message);
     }
     
     /**
@@ -36,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
                         .show(activity);
             }
         });
-        PopTip.show("已准备就绪");
+        PopTip.show("已准备就绪\n请启动 Activity2 查看！");
     }
     
     /**
