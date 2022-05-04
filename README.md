@@ -16,7 +16,7 @@ Kongzue Runner 是一个独立的消息事件传递总线，不依赖 Intent，�
 
 ## 怎么丢？
 
-首先你得初始化：
+首先你得初始化，建议在 Application#onCreate 里进行：
 ```java
 Runner.init(this);
 ```
