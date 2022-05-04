@@ -66,11 +66,7 @@ Runner.init(this);
 Runner.runOnActivity(MainActivity.getInstance(), new ActivityRunnable() {
     @Override
     public void run(Activity activity) {
-        MessageDialog.build()
-                .setTitle("提示")
-                .setMessage("这个事件来自 Activity2 创建。")
-                .setOkButton("OK")
-                .show(activity);
+        //Todo...
     }
 });
 ```
@@ -81,11 +77,7 @@ Runner.runOnActivity(MainActivity.getInstance(), new ActivityRunnable() {
 Runner.runOnActivity(Activity2.class, new ActivityRunnable() {
     @Override
     public void run(Activity activity) {
-        MessageDialog.build()
-                .setTitle("提示")
-                .setMessage("这个事件来自 MainActivity 创建。")
-                .setOkButton("OK")
-                .show(activity);
+        //Todo...
     }
 });
 ```
@@ -96,11 +88,7 @@ Runner.runOnActivity(Activity2.class, new ActivityRunnable() {
 Runner.runOnActivity("Activity2", new ActivityRunnable() {
     @Override
     public void run(Activity activity) {
-        MessageDialog.build()
-                .setTitle("提示")
-                .setMessage("这个事件来自 MainActivity 创建。")
-                .setOkButton("OK")
-                .show(activity);
+        //Todo...
     }
 });
 ```
@@ -202,7 +190,7 @@ Runner.changeDataByTag("subscriberB", "Hello World");
 ## 开源协议
 
 ```
-Copyright Kongzue DialogX
+Copyright Kongzue Runner
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
