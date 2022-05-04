@@ -14,6 +14,36 @@ Kongzue Runner 是一个独立的消息事件传递总线，不依赖 Intent，�
 
 - 直接丢就完事了，这货就是个挂；
 
+## 引入
+
+<div>
+<b>最新版本：</b>
+<a href="https://jitpack.io/#kongzue/Runner">
+<img src="https://jitpack.io/v/kongzue/Runner.svg" alt="Jitpack.io">
+</a> 
+</div>
+
+1) 在 project 的 build.gradle 文件中找到 `allprojects{}` 代码块添加以下代码：
+
+```
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        maven { url 'https://jitpack.io' }      //增加 jitPack Maven 仓库
+    }
+}
+```
+
+⚠️请注意，使用 Android Studio 北极狐版本（Arctic Fox）创建的项目，需要您前往 settings.gradle 添加上述 jitpack 仓库配置。
+
+2) 在 app 的 build.gradle 文件中找到 `dependencies{}` 代码块，并在其中加入以下语句：
+
+```
+implementation 'com.github.kongzue:Runner:0.0.1'
+```
+
+
 ## 怎么丢？
 
 首先你得初始化，建议在 Application#onCreate 里进行：
