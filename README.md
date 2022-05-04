@@ -185,6 +185,12 @@ Runner.changeData("subscriberA", "Test Message");
 | ImageView | Bitmap、int（资源id）、Drawable、Icon、Uri                   |
 | ListView  | ListAdapter、List（仅支持执行对应 adapter 的数据更新操作 notifyDataSetChanged） |
 
+此外，你还可以通过注解 `@DataWatchers` 设置订阅多个广播：
+```java
+@DataWatchers({"subscriberA", "subscriberB"})
+private TextView txtSubscribeMessage;
+```
+
 ##### 根据 View 的 Tag 更新内容
 
 你还可以使用以下代码根据 View 设置的 Tag 来修改内容，对所有界面同 Tag 全部生效。
