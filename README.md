@@ -23,7 +23,7 @@ Runner.init(this);
 
 然后就可以愉快的丢东西了！
 
-#### 丢事件：
+### 丢事件：
 
 在已经实例化的 Activity 上执行操作：
 ```java
@@ -68,7 +68,17 @@ Runner.runOnActivity("Activity2", new ActivityRunnable() {
 });
 ```
 
-#### 丢内容：
+额外说明，ActivityRunnable 具有泛型，你可以直接指定泛型为你的目标 Activity，这样就可以直接操作其内部的 public 修饰的成员或方法了：
+```java
+Runner.runOnActivity("Activity2", new ActivityRunnable<Activity2>() {
+    @Override
+    public void run(Activity2 activity2) {
+        activity2.execPublicFunction();
+    }
+});
+```
+
+### 丢内容：
 
 首先，你需要在目标 Activity 上编写一个成员，例如：
 ```java
