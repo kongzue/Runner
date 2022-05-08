@@ -79,4 +79,18 @@
         android:text="为所有订阅者B推送一个消息"
         android:textAllCaps="false" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="setUserAge"
+        android:text="为 User 设置一个 age"
+        android:textAllCaps="false" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="setUserAvatar"
+        android:text="为 User 设置一个头像"
+        android:textAllCaps="false" />
+
 </LinearLayout>

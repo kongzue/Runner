@@ -55,4 +55,32 @@
         android:padding="5dp"
         android:text=""/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="setUserName"
+        android:text="为 User 设置一个 name"
+        android:textAllCaps="false" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="createUser"
+        android:text="创建一个存储类 User"
+        android:textAllCaps="false" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="destroyUser"
+        android:text="置 User 为空"
+        android:textAllCaps="false" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="showUser"
+        android:text="展示 User 的信息"
+        android:textAllCaps="false" />
+
 </LinearLayout>

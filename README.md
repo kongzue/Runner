@@ -43,7 +43,7 @@ allprojects {
 2) 在 app 的 build.gradle 文件中找到 `dependencies{}` 代码块，并在其中加入以下语句：
 
 ```
-implementation 'com.github.kongzue:Runner:0.0.1'
+implementation 'com.github.kongzue:Runner:0.0.3'
 ```
 
 
@@ -147,6 +147,47 @@ Runner.sendToActivity("Activity2", "bitmapResult", BitmapFactory.decodeResource(
 @SenderTarget("bitmapResult")
 Bitmap bitmap;
 ```
+
+#### 对于非 Activity 的内容更新
+
+比如现在有一个数据存储类 User，请在其构造函数或初始化方法中添加 `Runner.bindAnyObject(object)`，例如：
+```java
+public class User {
+    
+    public User() {
+        Runner.bindAnyObject(this);
+    }
+    
+    private String name;
+    private int age;
+    @SenderTarget("avatar")
+    private Bitmap bitmap;
+    
+    //...
+}
+```
+
+若当前已存在实例化的对象 user，那么可以通过以下代码更新其内容：
+```java
+Runner.sendToAnyObject(user, "name", "ZhangSan");
+```
+
+若担心混淆，可使用 `@SenderTarget(...)` 注解标注其接收的 key。
+
+若当前 User 不确定是否实例化，可使用其 Class 或类名来代替设置：
+
+```java
+Runner.sendToAnyObject(User.class , "name", "ZhangSan");
+```
+
+Kongzue Runner 的优势在于，你可以在程序的任何地方指定修改它的值，例如 Demo 中演示了，在 Activity2 中对 MainActivity 中的 user 对象内容进行操作 [查看代码](https://github.com/kongzue/Runner/blob/master/app/src/main/java/com/kongzue/messagebusdemo/Activity2.java)。
+
+另外，Kongzue Runner 配备了完善的弱引用，您无需担心内存泄漏的问题，若出于项目中存在多个实例化的相同对象的数据操作，建议使用实例化后的对象进行操作，或者在不需要处理其数据时，使用以下方法解绑对象：
+```java
+Runner.unbindAnyObject(obj);
+```
+
+Kongzue Runner 操作数据遵循**栈**的处理方式，即，若存在多个相同类型的对象，使用 Class/className 模式操作时遵循后入栈的优先操作的方式，且不会对所有相同类型对象都进行处理。
 
 ### 随时更新
 

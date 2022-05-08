@@ -2,7 +2,6 @@ package com.kongzue.messagebusdemo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -30,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     
     /**
      * 设置一个事件，等待 Activity2 启动后执行
+     *
      * @param view 按钮
      */
     public void waitRunOnActivity2(View view) {
@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     
     /**
      * 启动 Activity2
+     *
      * @param view 按钮
      */
     public void runActivity2(View view) {
@@ -56,10 +57,49 @@ public class MainActivity extends AppCompatActivity {
     
     /**
      * 传递一个 Bitmap 到 Activity2
+     *
      * @param view 按钮
      */
     public void sendToActivity2(View view) {
-        Runner.sendToActivity("Activity2","bitmapResult", BitmapFactory.decodeResource(getResources(),R.mipmap.img_bug));
+        Runner.sendToActivity("Activity2", "bitmapResult", BitmapFactory.decodeResource(getResources(), R.mipmap.img_bug));
         PopTip.show("已准备就绪\n请进入 Activity2 查看！");
+    }
+    
+    User user;
+    
+    /**
+     * 创建一个存储类 User
+     *
+     * @param view 按钮
+     */
+    public void createUser(View view) {
+        user = new User();
+    }
+    
+    /**
+     * 展示 User 的信息
+     *
+     * @param view 按钮
+     */
+    public void showUser(View view) {
+        PopTip.show(user == null ? "[null]" : user.toString());
+    }
+    
+    /**
+     * 置 User 为空
+     *
+     * @param view 按钮
+     */
+    public void destroyUser(View view) {
+        user = null;
+    }
+    
+    /**
+     * 为 User 设置一个 name
+     *
+     * @param view 按钮
+     */
+    public void setUserName(View view) {
+        Runner.sendToAnyObject(User.class, "name", "ZhangSan");
     }
 }

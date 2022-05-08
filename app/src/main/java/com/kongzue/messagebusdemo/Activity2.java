@@ -1,12 +1,11 @@
 package com.kongzue.messagebusdemo;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.WindowCompat;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -17,11 +16,9 @@ import com.kongzue.dialogx.dialogs.PopTip;
 import com.kongzue.dialogx.interfaces.OnInputDialogButtonClickListener;
 import com.kongzue.dialogx.util.InputInfo;
 import com.kongzue.runner.ActivityRunnable;
-import com.kongzue.runner.DataWatcher;
 import com.kongzue.runner.DataWatchers;
 import com.kongzue.runner.Runner;
 import com.kongzue.dialogx.dialogs.MessageDialog;
-import com.kongzue.runner.SenderTarget;
 
 public class Activity2 extends AppCompatActivity {
     
@@ -123,6 +120,26 @@ public class Activity2 extends AppCompatActivity {
                         return false;
                     }
                 });
+    }
+    
+    /**
+     * 为 User 设置一个 age
+     *
+     * @param view 按钮
+     */
+    public void setUserAge(View view) {
+        Runner.sendToAnyObject(User.class, "age", 35);
+        PopTip.show("操作已完成");
+    }
+    
+    /**
+     * 为 User 设置一个头像
+     *
+     * @param view 按钮
+     */
+    public void setUserAvatar(View view) {
+        Runner.sendToAnyObject(User.class, "avatar", BitmapFactory.decodeResource(getResources(), R.mipmap.img_user));
+        PopTip.show("操作已完成");
     }
     
     @Override

@@ -11,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -20,15 +19,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -50,6 +46,8 @@ public class Runner {
     private static Application application;
     private static Application.ActivityLifecycleCallbacks activityLifecycle;
     private static List<Activity> activityList;
+    private static CopyOnWriteArrayList<AnyObjectSetter> anyObjectSetterList;
+    private static CopyOnWriteArrayList<WeakReference> anyObjectList;
     private static CopyOnWriteArrayList<ActivityRunnable> waitRunnableList;
     private static CopyOnWriteArrayList<ActivityRunnable> resumeRunnableList;
     private static WeakReference<Activity> topActivity;
@@ -140,6 +138,49 @@ public class Runner {
                 }
             }
         });
+    }
+    
+    /**
+     * 绑定任意对象。
+     * 建立绑定关系可以使 Runner 通过 Class/className 查找已经绑定的对象并向其成员推送内容。
+     *
+     * @param o 对象
+     */
+    public static void bindAnyObject(Object o) {
+        if (anyObjectList == null) {
+            anyObjectList = new CopyOnWriteArrayList<>();
+        }
+        anyObjectList.add(new WeakReference(o));
+        if (anyObjectSetterList != null && !anyObjectSetterList.isEmpty()) {
+            for (int i = anyObjectSetterList.size() - 1; i >= 0; i--) {
+                AnyObjectSetter anyObjectSetter = anyObjectSetterList.get(i);
+                if (anyObjectSetter.getValue() != null) {
+                    if (anyObjectSetter.getWaitObjectClass() != null) {
+                        sendToAnyObject(anyObjectSetter.getWaitObjectClass(), anyObjectSetter.getKey(), anyObjectSetter.getValue());
+                    }
+                    if (anyObjectSetter.getWaitObjectName() != null) {
+                        sendToAnyObject(anyObjectSetter.getWaitObjectName(), anyObjectSetter.getKey(), anyObjectSetter.getValue());
+                    }
+                }
+                anyObjectSetterList.remove(anyObjectSetter);
+            }
+        }
+    }
+    
+    /**
+     * 解绑对象。
+     *
+     * @param o 对象
+     */
+    public static void unbindAnyObject(Object o) {
+        if (anyObjectList == null) {
+            anyObjectList = new CopyOnWriteArrayList<>();
+        }
+        for (WeakReference weakReference : anyObjectList) {
+            if (weakReference == null || weakReference.get() == null || weakReference.get() == o) {
+                anyObjectList.remove(weakReference);
+            }
+        }
     }
     
     /**
@@ -325,6 +366,21 @@ public class Runner {
     }
     
     /**
+     * 发送任意对象到指定对象
+     *
+     * @param owner 实例化的对象
+     * @param key   owner 中已存在的成员名称，或使用 @SenderTarget(...) 注解修饰的 key
+     * @param value 赋值的内容
+     */
+    public static void sendToAnyObject(Object owner, String key, Object value) {
+        try {
+            setValue(owner, key, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    /**
      * 发送任意对象到指定 Activity
      *
      * @param activityClass 不确定是否实例化的 Activity 的 Class
@@ -347,6 +403,37 @@ public class Runner {
                 sendToActivity(activity, key, value);
             }
         });
+    }
+    
+    /**
+     * 发送任意对象到指定对象
+     * 请在 objClass 创建时，使用 #bindAnyObject(objClass) 绑定到 Runner
+     *
+     * @param objClass 不确定是否实例化的 object 的 Class
+     * @param key      object 中已存在的成员名称，或使用 @SenderTarget(...) 注解修饰的 key
+     * @param value    赋值的内容
+     */
+    public static void sendToAnyObject(Class objClass, String key, Object value) {
+        if (anyObjectList == null || anyObjectList.isEmpty()) {
+            waitSetValue(objClass, key, value);
+            return;
+        }
+        for (int i = anyObjectList.size() - 1; i >= 0; i--) {
+            if (anyObjectList.get(i) != null && anyObjectList.get(i).get() != null) {
+                if (anyObjectList.get(i).get().getClass() == objClass) {
+                    sendToAnyObject(anyObjectList.get(i).get(), key, value);
+                    return;
+                }
+            }
+        }
+        waitSetValue(objClass, key, value);
+    }
+    
+    private static void waitSetValue(Class objClass, String key, Object value) {
+        if (anyObjectSetterList == null) {
+            anyObjectSetterList = new CopyOnWriteArrayList<>();
+        }
+        anyObjectSetterList.add(new AnyObjectSetter(objClass, key, value));
     }
     
     /**
@@ -374,13 +461,44 @@ public class Runner {
         });
     }
     
-    private static void setValue(Activity activityClass, String key, Object value) {
-        Field[] fields = activityClass.getClass().getDeclaredFields();
+    /**
+     * 发送任意对象到指定对象
+     * 请在对象创建时，使用 #bindAnyObject(objClass) 绑定到 Runner
+     *
+     * @param objectName 不确定是否实例化的对象的类名
+     * @param key        对象中已存在的成员名称，或使用 @SenderTarget(...) 注解修饰的 key
+     * @param value      赋值的内容
+     */
+    public static void sendToAnyObject(String objectName, String key, Object value) {
+        if (anyObjectList == null || anyObjectList.isEmpty()) {
+            waitSetValue(objectName, key, value);
+            return;
+        }
+        for (int i = anyObjectList.size() - 1; i >= 0; i--) {
+            if (anyObjectList.get(i) != null && anyObjectList.get(i).get() != null) {
+                if (Objects.equals(anyObjectList.get(i).get().getClass().getSimpleName(), objectName)) {
+                    sendToAnyObject(anyObjectList.get(i).get(), key, value);
+                    return;
+                }
+            }
+        }
+        waitSetValue(objectName, key, value);
+    }
+    
+    private static void waitSetValue(String objectName, String key, Object value) {
+        if (anyObjectSetterList == null) {
+            anyObjectSetterList = new CopyOnWriteArrayList<>();
+        }
+        anyObjectSetterList.add(new AnyObjectSetter(objectName, key, value));
+    }
+    
+    private static void setValue(Object ownerClass, String key, Object value) {
+        Field[] fields = ownerClass.getClass().getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
             if (fields[i].getName().equals(key)) {
                 try {
                     fields[i].setAccessible(true);
-                    fields[i].set(activityClass, value);
+                    fields[i].set(ownerClass, value);
                 } catch (IllegalAccessException e) {
                     log("写入 " + key + " 的值： " + value + " 失败！");
                     e.printStackTrace();
@@ -392,7 +510,7 @@ public class Runner {
                 if (senderTarget != null && Objects.equals(key, senderTarget.value())) {
                     try {
                         fields[i].setAccessible(true);
-                        fields[i].set(activityClass, value);
+                        fields[i].set(ownerClass, value);
                     } catch (IllegalAccessException e) {
                         log("写入 " + key + " 的值： " + value + " 失败！");
                         e.printStackTrace();
