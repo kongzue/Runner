@@ -180,7 +180,7 @@ Runner.sendToAnyObject(user, "name", "ZhangSan");
 Runner.sendToAnyObject(User.class , "name", "ZhangSan");
 ```
 
-Kongzue Runner 的优势在于，你可以在程序的任何地方指定修改它的值，例如 Demo 中演示了，在 Activity2 中对 MainActivity 中的 user 对象内容进行操作 [查看代码](https://github.com/kongzue/Runner/blob/master/app/src/main/java/com/kongzue/messagebusdemo/Activity2.java)。
+Kongzue Runner 的优势在于，你可以在程序的任何地方指定修改它的值，例如 Demo 中演示了，在 Activity2 中对 MainActivity 中的 user 对象内容进行操作 [查看代码](https://github.com/kongzue/Runner/blob/5c5ae5e235a910e383289d75d517e4318803100c/app/src/main/java/com/kongzue/messagebusdemo/Activity2.java#L131)。
 
 另外，Kongzue Runner 配备了完善的弱引用，您无需担心内存泄漏的问题，若出于项目中存在多个实例化的相同对象的数据操作，建议使用实例化后的对象进行操作，或者在不需要处理其数据时，使用以下方法解绑对象：
 ```java
