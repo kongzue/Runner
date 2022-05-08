@@ -43,7 +43,7 @@ allprojects {
 2) 在 app 的 build.gradle 文件中找到 `dependencies{}` 代码块，并在其中加入以下语句：
 
 ```
-implementation 'com.github.kongzue:Runner:0.0.3'
+implementation 'com.github.kongzue:Runner:0.0.2'
 ```
 
 
