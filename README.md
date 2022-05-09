@@ -57,7 +57,7 @@ Runner.init(this);
 
 然后就可以愉快的丢东西了！
 
-### 丢事件：
+### 丢事件
 
 在已经实例化的 Activity 上执行操作：
 
@@ -104,7 +104,7 @@ Runner.runOnActivity("Activity2", new ActivityRunnable<Activity2>() {
 });
 ```
 
-##### 在回到此界面时执行
+#### 在回到此界面时执行
 
 除了 runOnActivity 外，还有 runOnResume，此方法与 runOnActivity 的操作基本一致，但它的执行条件是
 
@@ -114,7 +114,7 @@ Runner.runOnActivity("Activity2", new ActivityRunnable<Activity2>() {
 
 即若当前指定界面处于顶层，runOnResume 会立即执行，若处于后台或者非顶层，则当界面恢复到顶层时执行。
 
-### 丢内容：
+### 丢内容
 
 首先，你需要在目标 Activity 上编写一个成员，例如：
 
@@ -148,7 +148,7 @@ Runner.sendToActivity("Activity2", "bitmapResult", BitmapFactory.decodeResource(
 Bitmap bitmap;
 ```
 
-#### 对于非 Activity 的内容更新
+### 对于任意类的成员内容更新
 
 比如现在有一个数据存储类 User，请在其构造函数或初始化方法中添加 `Runner.bindAnyObject(object)`，例如：
 ```java
@@ -189,7 +189,7 @@ Runner.unbindAnyObject(obj);
 
 Kongzue Runner 操作数据遵循**栈**的处理方式，即，若存在多个相同类型的对象，使用 Class/className 模式操作时遵循后入栈的优先操作的方式，且不会对所有相同类型对象都进行处理。
 
-### 随时更新
+## 随时更新 View 的内容
 
 你可以为 View 指定一个注解，当对应 key 的广播执行时，**所有** （包括其他界面）拥有该注解的 View 的内容会被更新。
 
@@ -220,7 +220,7 @@ Runner.changeData("subscriberA", "Test Message");
 private TextView txtSubscribeMessage;
 ```
 
-##### 自定义设置器
+#### 自定义设置器
 
 对于未预设的 View 或者你需要其他方式方法设置 View 的数据更新，可以使用设置自定义数据处理器：
 ```java
@@ -238,7 +238,7 @@ Runner.customDataSetter = new CustomDataSetter() {
 };
 ```
 
-##### 根据 View 的 Tag 更新内容
+#### 根据 View 的 Tag 更新内容
 
 你还可以使用以下代码根据 View 设置的 Tag 来修改内容，对所有界面同 Tag 全部生效。
 
