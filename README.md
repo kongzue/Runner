@@ -220,6 +220,24 @@ Runner.changeData("subscriberA", "Test Message");
 private TextView txtSubscribeMessage;
 ```
 
+##### 自定义设置器
+
+对于未预设的 View 或者你需要其他方式方法设置 View 的数据更新，可以使用设置自定义数据处理器：
+```java
+Runner.customDataSetter = new CustomDataSetter() {
+    @Override
+    public boolean setData(View view, Object data) {
+        if (view instanceof CustomView) {
+            //自定义设置数据类型
+            view.setData((CustomData) data.getData());
+            //返回 true 表示让 Runner 不再继续判断处理
+            return true;
+        }
+        return false;
+    }
+};
+```
+
 ##### 根据 View 的 Tag 更新内容
 
 你还可以使用以下代码根据 View 设置的 Tag 来修改内容，对所有界面同 Tag 全部生效。

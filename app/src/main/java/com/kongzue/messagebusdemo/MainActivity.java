@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.kongzue.dialogx.dialogs.MessageDialog;
 import com.kongzue.runner.ActivityRunnable;
+import com.kongzue.runner.CustomDataSetter;
 import com.kongzue.runner.DataWatcher;
 import com.kongzue.runner.Runner;
 import com.kongzue.dialogx.dialogs.PopTip;
