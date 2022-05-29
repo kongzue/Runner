@@ -9,6 +9,8 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.BaseAdapter;
@@ -535,7 +537,7 @@ public class Runner {
                         try {
                             field.setAccessible(true);
                             View view = (View) field.get(activity);
-                            setValue(view, data);
+                            preSetValue(view, data);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -550,7 +552,7 @@ public class Runner {
                                 try {
                                     field.setAccessible(true);
                                     View view = (View) field.get(activity);
-                                    setValue(view, data);
+                                    preSetValue(view, data);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -569,13 +571,26 @@ public class Runner {
         for (Activity activity : activityList) {
             View view = activity.getWindow().getDecorView().findViewWithTag(key);
             if (view != null) {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setValue(view, data);
-                    }
-                });
+                preSetValue(view, data);
             }
+        }
+    }
+    
+    private static void preSetValue(View view, Object data) {
+        if (view.getContext() instanceof Activity){
+            ((Activity)view.getContext()).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setValue(view, data);
+                }
+            });
+        }else{
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    setValue(view, data);
+                }
+            });
         }
     }
     
