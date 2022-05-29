@@ -569,7 +569,12 @@ public class Runner {
         for (Activity activity : activityList) {
             View view = activity.getWindow().getDecorView().findViewWithTag(key);
             if (view != null) {
-                setValue(view, data);
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setValue(view, data);
+                    }
+                });
             }
         }
     }
