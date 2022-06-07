@@ -220,6 +220,53 @@ Runner.changeData("subscriberA", "Test Message");
 private TextView txtSubscribeMessage;
 ```
 
+#### 根据 View 的 Tag 更新内容
+
+你还可以使用以下代码根据 View 设置的 Tag 来修改内容，对所有界面同 Tag 全部生效。
+
+```java
+Runner.changeDataByTag("subscriberB", "Hello World");
+```
+
+### 对于任意类的 UI 内容更新
+
+对于 Fragment 等无法统一获得管理的 UI 组件，可以使用：
+```java
+Runner.bindAnyObject(this);
+```
+对该组件完成绑定，对于 LifecycleOwner 的实现成员，例如 Fragment，会在销毁时自动解绑。
+
+更新成员中的 View 内容：
+```java
+Runner.changeData("subscriberA", "Test Message");
+```
+
+要依据 Tag 更新成员内容，请额外为该类实现接口`RootViewInterface`：
+
+```java
+public class SettingsFragment extends Fragment implements RootViewInterface {
+    
+    //rootView 指向您 UI 的根布局，必须为 ViewGroup
+    ViewGroup rootView;
+    
+    @Override
+    public View getRootView(){
+        return rootView;
+    }
+    
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Runner.bindAnyObject(this);
+        //create view...
+        return rootView;
+    }
+}
+```
+即可完成绑定，使用以下方法更新 UI 内容：
+```java
+Runner.changeDataByTag("subscriberB", "Hello World");
+```
+
 #### 自定义设置器
 
 对于未预设的 View 或者你需要其他方式方法设置 View 的数据更新，可以使用设置自定义数据处理器：
@@ -236,14 +283,6 @@ Runner.customDataSetter = new CustomDataSetter() {
         return false;
     }
 };
-```
-
-#### 根据 View 的 Tag 更新内容
-
-你还可以使用以下代码根据 View 设置的 Tag 来修改内容，对所有界面同 Tag 全部生效。
-
-```java
-Runner.changeDataByTag("subscriberB", "Hello World");
 ```
 
 ## 开源协议
