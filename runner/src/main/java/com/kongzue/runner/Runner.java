@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -636,6 +637,20 @@ public class Runner {
             View view = activity.getWindow().getDecorView().findViewWithTag(key);
             if (view != null) {
                 preSetValue(view, data);
+            }
+        }
+        for (WeakReference<Object> objectWeakReference : anyObjectList) {
+            if (objectWeakReference.get() != null) {
+                Object object = objectWeakReference.get();
+                if (object instanceof RootViewInterface) {
+                    View rootView = ((RootViewInterface) object).getRootView();
+                    if (rootView instanceof ViewGroup) {
+                        View view =rootView.findViewWithTag(key);
+                        if (view != null) {
+                            preSetValue(view, data);
+                        }
+                    }
+                }
             }
         }
     }
