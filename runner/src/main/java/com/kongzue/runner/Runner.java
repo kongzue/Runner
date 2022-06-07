@@ -21,6 +21,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
@@ -153,6 +156,20 @@ public class Runner {
             anyObjectList = new CopyOnWriteArrayList<>();
         }
         anyObjectList.add(new WeakReference(o));
+        if (o instanceof LifecycleOwner) {
+            ((LifecycleOwner) o).getLifecycle().addObserver(new DefaultLifecycleObserver() {
+                @Override
+                public void onDestroy(@NonNull LifecycleOwner owner) {
+                    DefaultLifecycleObserver.super.onDestroy(owner);
+                    WeakReference weakReference = findObjectInAnyObjectList(owner);
+                    if (weakReference != null) {
+                        weakReference.clear();
+                        anyObjectList.remove(weakReference);
+                    }
+                }
+            });
+        }
+        //处理未处理的事务
         if (anyObjectSetterList != null && !anyObjectSetterList.isEmpty()) {
             for (int i = anyObjectSetterList.size() - 1; i >= 0; i--) {
                 AnyObjectSetter anyObjectSetter = anyObjectSetterList.get(i);
@@ -167,6 +184,15 @@ public class Runner {
                 anyObjectSetterList.remove(anyObjectSetter);
             }
         }
+    }
+    
+    private static WeakReference findObjectInAnyObjectList(Object o) {
+        for (WeakReference weakReference : anyObjectList) {
+            if (weakReference.get() == o) {
+                return weakReference;
+            }
+        }
+        return null;
     }
     
     /**
@@ -562,6 +588,44 @@ public class Runner {
                 }
             }
         }
+        for (WeakReference<Object> objectWeakReference : anyObjectList) {
+            if (objectWeakReference.get() != null) {
+                Object object = objectWeakReference.get();
+                Field[] fields = object.getClass().getDeclaredFields();
+                for (int i = 0; i < fields.length; i++) {
+                    Field field = fields[i];
+                    if (field.isAnnotationPresent(DataWatcher.class)) {
+                        DataWatcher dataWatcher = field.getAnnotation(DataWatcher.class);
+                        if (dataWatcher != null && Objects.equals(key, dataWatcher.value())) {
+                            try {
+                                field.setAccessible(true);
+                                View view = (View) field.get(object);
+                                preSetValue(view, data);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    if (field.isAnnotationPresent(DataWatchers.class)) {
+                        DataWatchers dataWatchers = field.getAnnotation(DataWatchers.class);
+                        if (dataWatchers != null) {
+                            String[] keys = dataWatchers.value();
+                            if (keys.length > 0) {
+                                if (Arrays.asList(keys).contains(key)) {
+                                    try {
+                                        field.setAccessible(true);
+                                        View view = (View) field.get(object);
+                                        preSetValue(view, data);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     public static void changeDataByTag(String key, Object data) {
@@ -577,14 +641,14 @@ public class Runner {
     }
     
     private static void preSetValue(View view, Object data) {
-        if (view.getContext() instanceof Activity){
-            ((Activity)view.getContext()).runOnUiThread(new Runnable() {
+        if (view.getContext() instanceof Activity) {
+            ((Activity) view.getContext()).runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     setValue(view, data);
                 }
             });
-        }else{
+        } else {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
@@ -635,5 +699,9 @@ public class Runner {
     
     private static void log(Object o) {
         Log.i("Runner>>>", String.valueOf(o));
+    }
+    
+    public static CopyOnWriteArrayList<WeakReference> getAnyObjectList() {
+        return anyObjectList;
     }
 }
