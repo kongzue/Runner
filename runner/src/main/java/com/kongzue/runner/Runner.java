@@ -551,48 +551,9 @@ public class Runner {
     }
     
     public static void changeData(String key, Object data) {
-        if (activityList == null) {
-            return;
-        }
-        for (Activity activity : activityList) {
-            Field[] fields = activity.getClass().getDeclaredFields();
-            for (int i = 0; i < fields.length; i++) {
-                Field field = fields[i];
-                if (field.isAnnotationPresent(DataWatcher.class)) {
-                    DataWatcher dataWatcher = field.getAnnotation(DataWatcher.class);
-                    if (dataWatcher != null && Objects.equals(key, dataWatcher.value())) {
-                        try {
-                            field.setAccessible(true);
-                            View view = (View) field.get(activity);
-                            preSetValue(view, data);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                if (field.isAnnotationPresent(DataWatchers.class)) {
-                    DataWatchers dataWatchers = field.getAnnotation(DataWatchers.class);
-                    if (dataWatchers != null) {
-                        String[] keys = dataWatchers.value();
-                        if (keys.length > 0) {
-                            if (Arrays.asList(keys).contains(key)) {
-                                try {
-                                    field.setAccessible(true);
-                                    View view = (View) field.get(activity);
-                                    preSetValue(view, data);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        for (WeakReference<Object> objectWeakReference : anyObjectList) {
-            if (objectWeakReference.get() != null) {
-                Object object = objectWeakReference.get();
-                Field[] fields = object.getClass().getDeclaredFields();
+        if (activityList != null) {
+            for (Activity activity : activityList) {
+                Field[] fields = activity.getClass().getDeclaredFields();
                 for (int i = 0; i < fields.length; i++) {
                     Field field = fields[i];
                     if (field.isAnnotationPresent(DataWatcher.class)) {
@@ -600,7 +561,7 @@ public class Runner {
                         if (dataWatcher != null && Objects.equals(key, dataWatcher.value())) {
                             try {
                                 field.setAccessible(true);
-                                View view = (View) field.get(object);
+                                View view = (View) field.get(activity);
                                 preSetValue(view, data);
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -615,7 +576,7 @@ public class Runner {
                                 if (Arrays.asList(keys).contains(key)) {
                                     try {
                                         field.setAccessible(true);
-                                        View view = (View) field.get(object);
+                                        View view = (View) field.get(activity);
                                         preSetValue(view, data);
                                     } catch (Exception e) {
                                         e.printStackTrace();
@@ -627,27 +588,68 @@ public class Runner {
                 }
             }
         }
+        if (anyObjectList != null) {
+            for (WeakReference<Object> objectWeakReference : anyObjectList) {
+                if (objectWeakReference.get() != null) {
+                    Object object = objectWeakReference.get();
+                    Field[] fields = object.getClass().getDeclaredFields();
+                    for (int i = 0; i < fields.length; i++) {
+                        Field field = fields[i];
+                        if (field.isAnnotationPresent(DataWatcher.class)) {
+                            DataWatcher dataWatcher = field.getAnnotation(DataWatcher.class);
+                            if (dataWatcher != null && Objects.equals(key, dataWatcher.value())) {
+                                try {
+                                    field.setAccessible(true);
+                                    View view = (View) field.get(object);
+                                    preSetValue(view, data);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        if (field.isAnnotationPresent(DataWatchers.class)) {
+                            DataWatchers dataWatchers = field.getAnnotation(DataWatchers.class);
+                            if (dataWatchers != null) {
+                                String[] keys = dataWatchers.value();
+                                if (keys.length > 0) {
+                                    if (Arrays.asList(keys).contains(key)) {
+                                        try {
+                                            field.setAccessible(true);
+                                            View view = (View) field.get(object);
+                                            preSetValue(view, data);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     public static void changeDataByTag(String key, Object data) {
-        if (activityList == null) {
-            return;
-        }
-        for (Activity activity : activityList) {
-            View view = activity.getWindow().getDecorView().findViewWithTag(key);
-            if (view != null) {
-                preSetValue(view, data);
+        if (activityList != null) {
+            for (Activity activity : activityList) {
+                View view = activity.getWindow().getDecorView().findViewWithTag(key);
+                if (view != null) {
+                    preSetValue(view, data);
+                }
             }
         }
-        for (WeakReference<Object> objectWeakReference : anyObjectList) {
-            if (objectWeakReference.get() != null) {
-                Object object = objectWeakReference.get();
-                if (object instanceof RootViewInterface) {
-                    View rootView = ((RootViewInterface) object).getRootView();
-                    if (rootView instanceof ViewGroup) {
-                        View view =rootView.findViewWithTag(key);
-                        if (view != null) {
-                            preSetValue(view, data);
+        if (anyObjectList != null) {
+            for (WeakReference<Object> objectWeakReference : anyObjectList) {
+                if (objectWeakReference.get() != null) {
+                    Object object = objectWeakReference.get();
+                    if (object instanceof RootViewInterface) {
+                        View rootView = ((RootViewInterface) object).getRootView();
+                        if (rootView instanceof ViewGroup) {
+                            View view = rootView.findViewWithTag(key);
+                            if (view != null) {
+                                preSetValue(view, data);
+                            }
                         }
                     }
                 }
