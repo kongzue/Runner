@@ -9,9 +9,10 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.kongzue.dialogx.dialogs.MessageDialog;
-import com.kongzue.runner.ActivityRunnable;
-import com.kongzue.runner.CustomDataSetter;
-import com.kongzue.runner.DataWatcher;
+import com.kongzue.runner.Data;
+import com.kongzue.runner.Event;
+import com.kongzue.runner.interfaces.ActivityRunnable;
+import com.kongzue.runner.interfaces.DataWatcher;
 import com.kongzue.runner.Runner;
 import com.kongzue.dialogx.dialogs.PopTip;
 
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
      * @param view 按钮
      */
     public void waitRunOnActivity2(View view) {
-        Runner.runOnActivity(Activity2.class, new ActivityRunnable<Activity2>() {
+        Event.runOnActivity(Activity2.class, new ActivityRunnable<Activity2>() {
             @Override
             public void run(Activity2 activity) {
                 MessageDialog.build()
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
      * @param view 按钮
      */
     public void sendToActivity2(View view) {
-        Runner.sendToActivity("Activity2", "bitmapResult", BitmapFactory.decodeResource(getResources(), R.mipmap.img_bug));
+        Data.sendToActivity("Activity2", "bitmapResult", BitmapFactory.decodeResource(getResources(), R.mipmap.img_bug));
         PopTip.show("已准备就绪\n请进入 Activity2 查看！");
     }
     
@@ -101,6 +102,6 @@ public class MainActivity extends AppCompatActivity {
      * @param view 按钮
      */
     public void setUserName(View view) {
-        Runner.sendToAnyObject(User.class, "name", "ZhangSan");
+        Data.sendToAnyObject(User.class, "name", "ZhangSan");
     }
 }

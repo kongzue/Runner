@@ -1,4 +1,4 @@
-package com.kongzue.runner;
+package com.kongzue.runner.util;
 
 import java.lang.ref.WeakReference;
 

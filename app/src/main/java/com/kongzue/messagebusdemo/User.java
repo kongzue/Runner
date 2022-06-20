@@ -3,7 +3,7 @@ package com.kongzue.messagebusdemo;
 import android.graphics.Bitmap;
 
 import com.kongzue.runner.Runner;
-import com.kongzue.runner.SenderTarget;
+import com.kongzue.runner.interfaces.SenderTarget;
 
 /**
  * @author: Kongzue

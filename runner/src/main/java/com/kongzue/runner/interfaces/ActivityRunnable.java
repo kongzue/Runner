@@ -1,4 +1,4 @@
-package com.kongzue.runner;
+package com.kongzue.runner.interfaces;
 
 import android.app.Activity;
 
@@ -13,9 +13,9 @@ import java.lang.ref.WeakReference;
  */
 public abstract class ActivityRunnable<D extends Activity> {
     
-    WeakReference<Activity> activityWeakReference;
-    Class waitRunActivityClass;
-    String waitRunActivityName;
+    public WeakReference<Activity> activityWeakReference;
+    public Class waitRunActivityClass;
+    public String waitRunActivityName;
     
     public abstract void run(D activity);
 }

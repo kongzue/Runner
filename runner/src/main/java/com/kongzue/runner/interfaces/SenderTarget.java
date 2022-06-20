@@ -1,4 +1,4 @@
-package com.kongzue.runner;
+package com.kongzue.runner.interfaces;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

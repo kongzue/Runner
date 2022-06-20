@@ -15,8 +15,10 @@ import com.kongzue.dialogx.dialogs.InputDialog;
 import com.kongzue.dialogx.dialogs.PopTip;
 import com.kongzue.dialogx.interfaces.OnInputDialogButtonClickListener;
 import com.kongzue.dialogx.util.InputInfo;
-import com.kongzue.runner.ActivityRunnable;
-import com.kongzue.runner.DataWatchers;
+import com.kongzue.runner.Data;
+import com.kongzue.runner.Event;
+import com.kongzue.runner.interfaces.ActivityRunnable;
+import com.kongzue.runner.interfaces.DataWatchers;
 import com.kongzue.runner.Runner;
 import com.kongzue.dialogx.dialogs.MessageDialog;
 
@@ -51,7 +53,7 @@ public class Activity2 extends AppCompatActivity {
      * @param view 按钮
      */
     public void runOnMainActivity(View view) {
-        Runner.runOnActivity("MainActivity", new ActivityRunnable() {
+        Event.runOnActivity("MainActivity", new ActivityRunnable() {
             @Override
             public void run(Activity activity) {
                 MessageDialog.build()
@@ -70,7 +72,7 @@ public class Activity2 extends AppCompatActivity {
      * @param view 按钮
      */
     public void runOnMainResume(View view) {
-        Runner.runOnActivity("MainActivity", new ActivityRunnable() {
+        Event.runOnActivity("MainActivity", new ActivityRunnable() {
             @Override
             public void run(Activity activity) {
                 MessageDialog.build()
@@ -95,7 +97,7 @@ public class Activity2 extends AppCompatActivity {
                 .setOkButton(new OnInputDialogButtonClickListener<InputDialog>() {
                     @Override
                     public boolean onClick(InputDialog baseDialog, View v, String inputStr) {
-                        Runner.changeData("subscriberA", inputStr);
+                        Data.changeData("subscriberA", inputStr);
                         PopTip.show("已完成！\n请观察本界面和上一层界面的订阅消息内容变化");
                         return false;
                     }
@@ -114,8 +116,8 @@ public class Activity2 extends AppCompatActivity {
                 .setOkButton(new OnInputDialogButtonClickListener<InputDialog>() {
                     @Override
                     public boolean onClick(InputDialog baseDialog, View v, String inputStr) {
-                        Runner.changeData("subscriberB", inputStr);
-                        Runner.changeDataByTag("subscriberB", inputStr);
+                        Data.changeData("subscriberB", inputStr);
+                        Data.changeDataByTag("subscriberB", inputStr);
                         PopTip.show("已完成！\n请观察本界面和上一层界面的订阅消息内容变化");
                         return false;
                     }
@@ -128,7 +130,7 @@ public class Activity2 extends AppCompatActivity {
      * @param view 按钮
      */
     public void setUserAge(View view) {
-        Runner.sendToAnyObject(User.class, "age", 35);
+        Data.sendToAnyObject(User.class, "age", 35);
         PopTip.show("操作已完成");
     }
     
@@ -138,7 +140,7 @@ public class Activity2 extends AppCompatActivity {
      * @param view 按钮
      */
     public void setUserAvatar(View view) {
-        Runner.sendToAnyObject(User.class, "avatar", BitmapFactory.decodeResource(getResources(), R.mipmap.img_user));
+        Data.sendToAnyObject(User.class, "avatar", BitmapFactory.decodeResource(getResources(), R.mipmap.img_user));
         PopTip.show("操作已完成");
     }
     
