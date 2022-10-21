@@ -1,6 +1,7 @@
 package com.kongzue.messagebusdemo;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.kongzue.runner.Runner;
 import com.kongzue.dialogx.DialogX;

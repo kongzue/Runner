@@ -11,5 +11,5 @@ import android.view.View;
  */
 public interface CustomDataSetter {
     
-    boolean setData(View view,Object data);
+    boolean setData(View view, Object data);
 }

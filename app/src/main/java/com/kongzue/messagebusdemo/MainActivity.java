@@ -9,11 +9,11 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.kongzue.dialogx.dialogs.MessageDialog;
+import com.kongzue.messagebusdemo.util.User;
 import com.kongzue.runner.Data;
 import com.kongzue.runner.Event;
 import com.kongzue.runner.interfaces.ActivityRunnable;
 import com.kongzue.runner.interfaces.DataWatcher;
-import com.kongzue.runner.Runner;
 import com.kongzue.dialogx.dialogs.PopTip;
 
 public class MainActivity extends AppCompatActivity {
@@ -103,5 +103,13 @@ public class MainActivity extends AppCompatActivity {
      */
     public void setUserName(View view) {
         Data.sendToAnyObject(User.class, "name", "ZhangSan");
+    }
+    
+    /**
+     * MVVM 测试
+     * @param view 按钮
+     */
+    public void mvvmTest(View view) {
+        startActivity(new Intent(this, Activity3.class));
     }
 }

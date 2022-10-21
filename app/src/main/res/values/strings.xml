@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Kongzue Runner</string>
+    <string name="activity3_code">public&#160;class&#160;Activity3&#160;extends&#160;AppCompatActivity&#160;{\n&#160;&#160;&#160;&#160;\n&#160;&#160;&#160;&#160;@BindModel\n&#160;&#160;&#160;&#160;LoginInfo&#160;loginInfo;\n&#160;&#160;&#160;&#160;\n&#160;&#160;&#160;&#160;@Override\n&#160;&#160;&#160;&#160;protected&#160;void&#160;onCreate(Bundle&#160;savedInstanceState)&#160;{\n&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;super.onCreate(savedInstanceState);\n&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;setContentView(R.layout.activity_3);\n&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;\n&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;loginInfo&#160;=&#160;new&#160;LoginInfo(\"zhangsan\",&#160;\"123456\");\n&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;ViewModel.bindActivity(this);\n&#160;&#160;&#160;&#160;}\n}</string>
 </resources>

@@ -25,6 +25,7 @@ import com.kongzue.runner.interfaces.DataWatchers;
 import com.kongzue.runner.interfaces.RootViewInterface;
 import com.kongzue.runner.interfaces.SenderTarget;
 import com.kongzue.runner.util.AnyObjectSetter;
+import com.kongzue.runner.util.ViewDataSetter;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
@@ -42,9 +43,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @mail: myzcxhh@live.cn
  * @createTime: 2022/6/20 16:51
  */
-public class Data extends Runner{
-    
-    public static CustomDataSetter customDataSetter;
+public class Data extends Runner {
     
     /**
      * 发送任意对象到指定 Activity
@@ -189,32 +188,7 @@ public class Data extends Runner{
     }
     
     private static void setValue(Object ownerClass, String key, Object value) {
-        Field[] fields = ownerClass.getClass().getDeclaredFields();
-        for (int i = 0; i < fields.length; i++) {
-            if (fields[i].getName().equals(key)) {
-                try {
-                    fields[i].setAccessible(true);
-                    fields[i].set(ownerClass, value);
-                } catch (IllegalAccessException e) {
-                    log("写入 " + key + " 的值： " + value + " 失败！");
-                    e.printStackTrace();
-                }
-                return;
-            }
-            if (fields[i].isAnnotationPresent(SenderTarget.class)) {
-                SenderTarget senderTarget = fields[i].getAnnotation(SenderTarget.class);
-                if (senderTarget != null && Objects.equals(key, senderTarget.value())) {
-                    try {
-                        fields[i].setAccessible(true);
-                        fields[i].set(ownerClass, value);
-                    } catch (IllegalAccessException e) {
-                        log("写入 " + key + " 的值： " + value + " 失败！");
-                        e.printStackTrace();
-                    }
-                    return;
-                }
-            }
-        }
+        ViewDataSetter.setValue(ownerClass, key, value);
     }
     
     public static void changeData(String key, Object data) {
@@ -297,10 +271,10 @@ public class Data extends Runner{
         }
     }
     
-    public static void changeDataByTag(String key, Object data) {
+    public static void changeDataByTag(String tag, Object data) {
         if (activityList != null) {
             for (Activity activity : activityList) {
-                View view = activity.getWindow().getDecorView().findViewWithTag(key);
+                View view = activity.getWindow().getDecorView().findViewWithTag(tag);
                 if (view != null) {
                     preSetValue(view, data);
                 }
@@ -313,7 +287,7 @@ public class Data extends Runner{
                     if (object instanceof RootViewInterface) {
                         View rootView = ((RootViewInterface) object).getRootView();
                         if (rootView instanceof ViewGroup) {
-                            View view = rootView.findViewWithTag(key);
+                            View view = rootView.findViewWithTag(tag);
                             if (view != null) {
                                 preSetValue(view, data);
                             }
@@ -343,41 +317,6 @@ public class Data extends Runner{
     }
     
     private static void setValue(View view, Object data) {
-        if (view != null) {
-            if (customDataSetter == null || !customDataSetter.setData(view, data)) {
-                if (view instanceof TextView) {
-                    TextView textview = (TextView) view;
-                    if (data instanceof CharSequence) {
-                        textview.setText(String.valueOf(data));
-                    } else if (data instanceof Integer) {
-                        textview.setText((int) data);
-                    }
-                } else if (view instanceof ImageView) {
-                    ImageView imageView = (ImageView) view;
-                    if (data instanceof Bitmap) {
-                        imageView.setImageBitmap((Bitmap) data);
-                    } else if (data instanceof Integer) {
-                        imageView.setImageResource((int) data);
-                    } else if (data instanceof Drawable) {
-                        imageView.setImageDrawable((Drawable) data);
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if (data instanceof Icon) {
-                            imageView.setImageIcon((Icon) data);
-                        }
-                    } else if (data instanceof Uri) {
-                        imageView.setImageURI((Uri) data);
-                    }
-                } else if (view instanceof ListView) {
-                    ListView listView = (ListView) view;
-                    if (data instanceof ListAdapter) {
-                        listView.setAdapter((ListAdapter) data);
-                    } else if (data instanceof List) {
-                        if (listView.getAdapter() instanceof BaseAdapter) {
-                            ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
-                        }
-                    }
-                }
-            }
-        }
+        ViewDataSetter.setValue(view, data);
     }
 }

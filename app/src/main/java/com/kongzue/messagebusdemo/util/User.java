@@ -1,4 +1,4 @@
-package com.kongzue.messagebusdemo;
+package com.kongzue.messagebusdemo.util;
 
 import android.graphics.Bitmap;
 

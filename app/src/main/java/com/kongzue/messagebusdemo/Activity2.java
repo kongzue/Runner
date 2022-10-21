@@ -15,11 +15,11 @@ import com.kongzue.dialogx.dialogs.InputDialog;
 import com.kongzue.dialogx.dialogs.PopTip;
 import com.kongzue.dialogx.interfaces.OnInputDialogButtonClickListener;
 import com.kongzue.dialogx.util.InputInfo;
+import com.kongzue.messagebusdemo.util.User;
 import com.kongzue.runner.Data;
 import com.kongzue.runner.Event;
 import com.kongzue.runner.interfaces.ActivityRunnable;
 import com.kongzue.runner.interfaces.DataWatchers;
-import com.kongzue.runner.Runner;
 import com.kongzue.dialogx.dialogs.MessageDialog;
 
 public class Activity2 extends AppCompatActivity {

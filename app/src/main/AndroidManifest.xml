@@ -3,18 +3,28 @@
     package="com.kongzue.messagebusdemo">
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:name=".App"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MessageBusDemo">
         <activity
+            android:name=".Activity4"
+            android:exported="false"
+            android:label="列表测试"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".Activity3"
+            android:exported="false"
+            android:label="MVVM测试"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".Activity2"
-            android:label="Activity2"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false" />
+            android:exported="false"
+            android:label="事件传递测试"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

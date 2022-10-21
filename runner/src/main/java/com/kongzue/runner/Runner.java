@@ -206,4 +206,5 @@ public class Runner {
     protected static CopyOnWriteArrayList<ActivityRunnable> waitRunnableList;
     protected static CopyOnWriteArrayList<ActivityRunnable> resumeRunnableList;
     protected static WeakReference<Activity> topActivity;
+    public static CustomDataSetter customDataSetter;
 }
