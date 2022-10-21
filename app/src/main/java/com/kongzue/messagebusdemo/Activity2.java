@@ -147,7 +147,6 @@ public class Activity2 extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            //点击返回图标事件
             case android.R.id.home:
                 onBackPressed();
             default:

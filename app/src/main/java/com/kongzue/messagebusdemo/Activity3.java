@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.kongzue.messagebusdemo.util.LoginInfo;
@@ -20,6 +21,8 @@ public class Activity3 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_3);
+    
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
         loginInfo = new LoginInfo("zhangsan", "123456").setIsRememberLogin(true);
         ViewModel.bindActivity(this);
@@ -37,5 +40,15 @@ public class Activity3 extends AppCompatActivity {
     
     public void showListTest(View view) {
         startActivity(new Intent(this, Activity4.class));
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

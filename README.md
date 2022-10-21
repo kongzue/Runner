@@ -1,6 +1,12 @@
 # Kongzue 的消息总线
 
-Kongzue Runner 是一个独立的消息事件传递总线，不依赖 Intent，可以独立传递数据、执行事件，亦可以对尚未运行的 Activity 预设需要执行的事件，或者跨界面预设接下来要执行的事件。
+Kongzue Runner 旨在快速完成 App 逻辑构建，协助开发者低成本完成业务开发。
+
+Runner 提供一个独立的消息事件传递总线，不依赖 Intent，可以独立传递数据、执行事件，亦可以对尚未运行的 Activity 预设需要执行的事件，或者跨界面预设接下来要执行的事件。
+
+还提供一套近乎全自动化的 ViewModel 框架，能够依据数据和 View 的对应关系自动实现数据绑定和界面适配（Beta）。
+
+![Kongzue Runner](readme/what_is_runner.jpg)
 
 ## 优势
 
@@ -24,7 +30,6 @@ Kongzue Runner 是一个独立的消息事件传递总线，不依赖 Intent，�
 <img src="https://jitpack.io/v/kongzue/Runner.svg" alt="Jitpack.io">
 </a> 
 </div>
-
 
 
 1) 在 project 的 build.gradle 文件中找到 `allprojects{}` 代码块添加以下代码：
@@ -295,6 +300,141 @@ public boolean setData(View view, Object data) {
         }
         };
 ```
+
+## 自动化 ViewModel
+
+Runner 提供 View 和 Model 数据更新的双向绑定，即 Model 中的数据与界面上的 View 绑定，当数据发生变化时界面上的 View 内容自动更新，当界面中存在的可交互控件，例如 EditText、CheckBox，内容或状态发生变化时也将自动同步给 Model 中的内容。
+
+要实现这些功能，首先请确保你的数据字段和 XML 中的 View 配置的 `android:tag` 属性保持一致，例如：
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activity3"
+    android:orientation="vertical">
+
+    <EditText
+        android:tag="username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:tag="password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <CheckBox
+        android:tag="isRememberLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="记住登录状态"/>
+
+</LinearLayout>
+```
+
+则 Model 代码为：
+
+```java
+public class LoginInfo {
+    
+    private String username;
+    private String password;
+    private boolean isRememberLogin;
+    
+    //省略对应的 get/set 方法...
+}
+```
+
+此时，在 Activity 中初始化 LoginInfo 后，使用 `@BindModel` 注解标注 LoginInfo ，执行 `ViewModel.bindActivity(this);` 即可绑定界面元素：
+
+```java
+public class Activity4 extends AppCompatActivity {
+    
+    @BindModel
+    ListData listData;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_4);
+        
+        listData = new ListData();
+        ViewModel.bindActivity(this);
+    }
+}
+```
+
+要实现数据修改实时对界面更新，需要使 Model 继承 BaseModel 并在 set 方法后执行 `refreshUI();`
+
+### 一点骚操作
+
+对于简单的单布局 ListView 也可实现一键自动适配器，首先使 ListView 继承 `AutoCreateListViewInterface` 并回传子布局：
+
+```java
+public class AutoCreateListView extends ListView implements AutoCreateListViewInterface {
+    
+    public AutoCreateListView(Context context) {
+        super(context);
+    }
+    
+    public AutoCreateListView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+    
+    public AutoCreateListView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+    
+    @Override
+    public int itemLayoutRes() {
+        return R.layout.item_list_test;		//回传子布局
+    }
+}
+```
+
+制作数据 Model：
+
+```java
+public class ListData {
+    
+    List<Data> list;
+    
+    public ListData() {
+        list = new ArrayList<>();
+        //list.add... 省略数据添加步骤
+    }
+    
+    class Data{
+        String title;
+        String tip;
+    }
+}
+```
+
+绑定到 Activity：
+
+```java
+public class Activity4 extends AppCompatActivity {
+    
+    @BindModel
+    ListData listData;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_4);
+        
+        listData = new ListData();
+        ViewModel.bindActivity(this);
+    }
+}
+```
+
+ViewModel 会自动配置 Adapter，你无需关心任何事情。
 
 ## 开源协议
 

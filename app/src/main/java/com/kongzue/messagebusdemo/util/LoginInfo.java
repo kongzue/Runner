@@ -15,17 +15,8 @@ import java.util.List;
 public class LoginInfo extends BaseModel {
     
     private String username;
-    
     private String password;
-    
-    private List list = new ArrayList();
-    
     private boolean isRememberLogin;
-    
-    public LoginInfo() {
-        list.add("1");
-        list.add("cs");
-    }
     
     public LoginInfo(String username, String password) {
         this.username = username;
